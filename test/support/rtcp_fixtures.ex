@@ -28,7 +28,7 @@ defmodule Membrane.RTCP.Fixtures do
         rtp_timestamp: 309_557_624,
         wallclock_ts: to_membrane_time("2020-04-24T11:18:23.349522Z", 999),
         sender_packets: 66,
-        sender_octets: 11215,
+        sender_octets: 11_215,
         cname: cname,
         tool: tool
       },
@@ -37,7 +37,7 @@ defmodule Membrane.RTCP.Fixtures do
         rtp_timestamp: 309_797_521,
         wallclock_ts: to_membrane_time("2020-04-24T11:18:28.789375Z", 999),
         sender_packets: 300,
-        sender_octets: 54729,
+        sender_octets: 54_729,
         cname: cname,
         tool: tool
       },

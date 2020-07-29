@@ -4,40 +4,7 @@ defmodule Membrane.RTCP.SdesPacket do
   [RFC3550](https://tools.ietf.org/html/rfc3550#section-6.5)
   """
 
-  alias Membrane.RTCP.Packet
-
-  defmodule Chunk do
-    @moduledoc false
-
-    @type t :: %__MODULE__{
-            cname: String.t() | nil,
-            name: String.t() | nil,
-            email: String.t() | nil,
-            phone: String.t() | nil,
-            loc: String.t() | nil,
-            tool: String.t() | nil,
-            note: String.t() | nil,
-            priv: {String.t(), String.t()} | nil
-          }
-    defstruct [
-      :cname,
-      :name,
-      :email,
-      :phone,
-      :loc,
-      :tool,
-      :note,
-      :priv
-    ]
-  end
-
-  defstruct chunks: []
-
-  @type t() :: %__MODULE__{
-          chunks: %{
-            required(Membrane.RTP.ssrc_t()) => Keyword.t()
-          }
-        }
+  @behaviour Membrane.RTCP.Packet
 
   @packet_type 202
 
@@ -63,7 +30,38 @@ defmodule Membrane.RTCP.SdesPacket do
     :priv => 8
   }
 
-  @behaviour Packet
+  defstruct chunks: []
+
+  @type t() :: %__MODULE__{
+          chunks: %{
+            required(Membrane.RTP.ssrc_t()) => Keyword.t()
+          }
+        }
+
+  defmodule Chunk do
+    @moduledoc false
+
+    @type t :: %__MODULE__{
+            cname: String.t() | nil,
+            name: String.t() | nil,
+            email: String.t() | nil,
+            phone: String.t() | nil,
+            loc: String.t() | nil,
+            tool: String.t() | nil,
+            note: String.t() | nil,
+            priv: {String.t(), String.t()} | nil
+          }
+    defstruct [
+      :cname,
+      :name,
+      :email,
+      :phone,
+      :loc,
+      :tool,
+      :note,
+      :priv
+    ]
+  end
 
   @impl true
   def decode(packet, ssrc_count) do

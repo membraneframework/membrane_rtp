@@ -77,7 +77,7 @@ defmodule Membrane.RTP.Packet do
   defp extract_boolean(1), do: true
   defp extract_boolean(0), do: false
 
-  def strip_padding(is_padding_present, payload)
+  @spec strip_padding(payload :: binary(), has_padding :: boolean()) :: binary()
   def strip_padding(payload, false), do: payload
 
   def strip_padding(payload, true) do

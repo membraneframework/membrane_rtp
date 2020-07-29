@@ -3,20 +3,19 @@ defmodule Membrane.RTCP.ByePacket do
   Parses and constructs RTCP BYE packets defined in
   [RFC3550](https://tools.ietf.org/html/rfc3550#section-6.6)
   """
+
+  @behaviour Membrane.RTCP.Packet
+
   use Bunch
 
-  alias Membrane.RTCP.Packet
+  @packet_type 203
+
+  defstruct [:ssrcs, :reason]
 
   @type t :: %__MODULE__{
           ssrcs: [non_neg_integer()],
           reason: String.t() | nil
         }
-
-  defstruct [:ssrcs, :reason]
-
-  @packet_type 203
-
-  @behaviour Packet
 
   @impl true
   def decode(packet, count) do

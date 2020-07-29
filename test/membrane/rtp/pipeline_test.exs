@@ -24,7 +24,7 @@ defmodule Membrane.RTP.PipelineTest do
 
     Pipeline.play(pipeline)
 
-    Enum.each(test_data_base, fn _ ->
+    Enum.each(test_data_base, fn _counter ->
       assert_sink_buffer(pipeline, :sink, %Buffer{}, @buffer_receive_timeout)
     end)
   end

@@ -3,9 +3,12 @@ defmodule Membrane.RTCP.ReceiverReporter do
   Periodically generates RTCP receive reports basing on jitter buffer stats and RTCP sender reports
   and sends them via output.
   """
+
   use Membrane.Source
-  require Logger
+
   alias Membrane.{Buffer, RTCP, RTP, Time}
+
+  require Logger
 
   def_output_pad :output, mode: :push, caps: RTCP
 
@@ -109,7 +112,7 @@ defmodule Membrane.RTCP.ReceiverReporter do
       interarrival_jitter: trunc(stats.interarrival_jitter),
       last_sr_timestamp: Map.get(remote_report, :cut_wallclock_timestamp, 0),
       # delay_since_sr is expressed in 1/65536 seconds, see https://tools.ietf.org/html/rfc3550#section-6.4.1
-      delay_since_sr: Time.to_seconds(65536 * delay_since_sr)
+      delay_since_sr: Time.to_seconds(65_536 * delay_since_sr)
     }
 
     [%RTCP.ReceiverReportPacket{ssrc: local_ssrc, reports: [report_block]}]

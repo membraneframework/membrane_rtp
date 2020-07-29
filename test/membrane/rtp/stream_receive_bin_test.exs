@@ -1,12 +1,13 @@
 defmodule Membrane.RTP.StreamReceiveBinTest do
   use ExUnit.Case
+
+  import Membrane.Testing.Assertions
+
   alias Membrane.Testing
 
   alias Membrane.RTP
   alias Membrane.RTP.StreamReceiveBin
   alias Membrane.RTP.H264
-
-  import Testing.Assertions
 
   @pcap_file "test/fixtures/rtp/session/demo.pcap"
   @frames_count 1038
@@ -19,7 +20,7 @@ defmodule Membrane.RTP.StreamReceiveBinTest do
     def_input_pad :input, demand_unit: :buffers, caps: :any
 
     @impl true
-    def handle_init(_), do: {:ok, %{counter: 0}}
+    def handle_init(_opts), do: {:ok, %{counter: 0}}
 
     @impl true
     def handle_prepared_to_playing(_ctx, state),

@@ -69,6 +69,9 @@ defmodule Membrane.Element.RTP.MixProject do
       # Dev
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0", only: :dev, runtime: false},
+      {:credo, "~> 1.4", only: :dev, runtime: false},
+
+      # Test
       {:excoveralls, ">= 0.8.0", only: :test},
       {:membrane_rtp_h264_plugin, "~> 0.3.0-alpha", only: :test},
       {:membrane_rtp_mpegaudio_plugin, "~> 0.4.0-alpha", only: :test},

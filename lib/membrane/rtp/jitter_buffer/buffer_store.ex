@@ -174,7 +174,7 @@ defmodule Membrane.RTP.JitterBuffer.BufferStore do
   """
   @spec dump(t()) :: [Record.t()]
   def dump(%__MODULE__{} = store) do
-    {records, _store} = shift_while(store, fn _, _ -> true end)
+    {records, _store} = shift_while(store, fn _store, _record -> true end)
     records
   end
 
@@ -185,7 +185,7 @@ defmodule Membrane.RTP.JitterBuffer.BufferStore do
   def first_record_timestamp(%__MODULE__{heap: heap}) do
     case Heap.root(heap) do
       %Record{timestamp: time} -> time
-      _ -> nil
+      _no_record -> nil
     end
   end
 

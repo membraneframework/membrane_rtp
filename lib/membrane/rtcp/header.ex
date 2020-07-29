@@ -28,7 +28,7 @@ defmodule Membrane.RTCP.Header do
      }}
   end
 
-  def parse(_) do
+  def parse(_binary) do
     {:error, :invalid_header}
   end
 

@@ -35,7 +35,7 @@ defmodule Membrane.RTP.SSRCRouter do
           {:new_ssrc_stream, RTP.ssrc_t(), RTP.payload_type_t()}
 
   @impl true
-  def handle_init(_), do: {:ok, %State{}}
+  def handle_init(_options), do: {:ok, %State{}}
 
   @impl true
   def handle_pad_added(Pad.ref(:output, ssrc) = pad, _ctx, state) do

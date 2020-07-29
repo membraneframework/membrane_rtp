@@ -50,7 +50,7 @@ defmodule Membrane.RTP.Packet.PayloadType do
   def get_clock_rate(3), do: 8000
   def get_clock_rate(4), do: 8000
   def get_clock_rate(5), do: 8000
-  def get_clock_rate(6), do: 16000
+  def get_clock_rate(6), do: 16_000
   def get_clock_rate(7), do: 8000
   def get_clock_rate(8), do: 8000
   def get_clock_rate(9), do: 8000

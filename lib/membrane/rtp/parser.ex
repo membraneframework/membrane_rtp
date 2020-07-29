@@ -30,7 +30,7 @@ defmodule Membrane.RTP.Parser do
   end
 
   @impl true
-  def handle_init(_) do
+  def handle_init(_options) do
     {:ok, %State{}}
   end
 

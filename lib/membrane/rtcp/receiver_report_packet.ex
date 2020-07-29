@@ -4,7 +4,9 @@ defmodule Membrane.RTCP.ReceiverReportPacket do
   [RFC3550](https://tools.ietf.org/html/rfc3550#section-6.4.2)
   """
 
-  alias Membrane.RTCP.{Packet, ReportPacketBlock}
+  @behaviour Membrane.RTCP.Packet
+
+  alias Membrane.RTCP.ReportPacketBlock
 
   defstruct [:ssrc, :reports]
 
@@ -12,8 +14,6 @@ defmodule Membrane.RTCP.ReceiverReportPacket do
           ssrc: non_neg_integer(),
           reports: [ReportPacketBlock.t()]
         }
-
-  @behaviour Packet
 
   @packet_type 201
 

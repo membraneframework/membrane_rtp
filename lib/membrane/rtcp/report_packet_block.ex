@@ -67,5 +67,5 @@ defmodule Membrane.RTCP.ReportPacketBlock do
     decode(rest, [data | acc])
   end
 
-  defp decode(_, _acc), do: {:error, :invalid_report_block}
+  defp decode(_binary, _acc), do: {:error, :invalid_report_block}
 end

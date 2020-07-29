@@ -12,11 +12,11 @@ defmodule Membrane.RTP.Session.ReceiveBin do
   """
   use Membrane.Bin
 
-  require Bitwise
-
   alias Membrane.ParentSpec
   alias Membrane.{RTCP, RTP}
   alias Membrane.RTP.Packet.PayloadType
+
+  require Bitwise
 
   @ssrc_boundaries 2..(Bitwise.bsl(1, 32) - 1)
 
@@ -45,8 +45,8 @@ defmodule Membrane.RTP.Session.ReceiveBin do
               receiver_ssrc_generator: [
                 type: :function,
                 spec:
-                  (local_ssrcs :: [pos_integer], remote_ssrcs :: [pos_integer] ->
-                     ssrc :: pos_integer),
+                  (local_ssrcs :: [RTP.ssrc_t()], remote_ssrcs :: [RTP.ssrc_t()] ->
+                     ssrc :: RTP.ssrc_t()),
                 default: &__MODULE__.generate_receiver_ssrc/2,
                 description: """
                 Function generating receiver SSRCs. Default one generates random SSRC
@@ -55,6 +55,8 @@ defmodule Membrane.RTP.Session.ReceiveBin do
               ]
 
   @doc false
+  @spec generate_receiver_ssrc(local_ssrcs :: [RTP.ssrc_t()], remote_ssrcs :: [RTP.ssrc_t()]) ::
+          RTP.ssrc_t()
   def generate_receiver_ssrc(local_ssrcs, remote_ssrcs) do
     fn -> Enum.random(@ssrc_boundaries) end
     |> Stream.repeatedly()

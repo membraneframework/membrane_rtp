@@ -35,7 +35,7 @@ defmodule Membrane.RTCP.CompoundPacket do
       do_parse(rest, [packet | packets])
     else
       {:error, _reason} = err -> err
-      _ -> {:error, :invalid_compound_packet}
+      _unmatched_binary -> {:error, :invalid_compound_packet}
     end
   end
 end

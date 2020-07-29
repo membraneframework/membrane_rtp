@@ -95,7 +95,7 @@ defmodule Membrane.RTP.Session.ReceiveBinTest do
     end
 
     @impl true
-    def handle_notification(_, _, state) do
+    def handle_notification(_notification, _from, state) do
       {:ok, state}
     end
   end
@@ -107,7 +107,7 @@ defmodule Membrane.RTP.Session.ReceiveBinTest do
         reports: [],
         sender_info: %{
           rtp_timestamp: 555_689_664,
-          sender_octet_count: 27843,
+          sender_octet_count: 27_843,
           sender_packet_count: 158,
           wallclock_timestamp: 1_582_306_181_225_999_999
         },

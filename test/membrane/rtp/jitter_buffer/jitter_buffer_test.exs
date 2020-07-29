@@ -11,7 +11,7 @@ defmodule Membrane.RTP.JitterBufferTest do
     buffer = BufferFactory.sample_buffer(@base_seq_number)
     # {:ok, store} = BufferStore.insert_buffer(%BufferStore{}, buffer)
     state = %State{
-      clock_rate: 10000,
+      clock_rate: 10_000,
       store: %BufferStore{},
       latency: 10 |> Membrane.Time.milliseconds()
     }
