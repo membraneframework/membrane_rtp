@@ -26,7 +26,7 @@ defmodule Membrane.RTCP.Header do
          packet_type: pt
        },
        padding?: padding == 1,
-       length: (length + 1) * 4
+       length: length * 4
      }}
   end
 
@@ -37,7 +37,8 @@ defmodule Membrane.RTCP.Header do
   @spec serialize(t(), length: pos_integer(), padding?: boolean()) :: binary()
   def serialize(%__MODULE__{} = header, opts) do
     padding = if Keyword.get(opts, :padding?), do: 1, else: 0
-    length = div(Keyword.fetch!(opts, :length), 4) - 1
-    <<2::2, padding::1, header.packet_specific::5, header.packet_type::8, length::16>>
+    length = Keyword.fetch!(opts, :length)
+    0 = rem(length, 4)
+    <<2::2, padding::1, header.packet_specific::5, header.packet_type::8, div(length, 4)::16>>
   end
 end

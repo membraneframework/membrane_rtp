@@ -12,7 +12,6 @@ defmodule Membrane.RTCP.AppPacket do
           data: binary()
         }
 
-  @packet_type 204
   @behaviour Membrane.RTCP.Packet
 
   @impl true
@@ -33,6 +32,6 @@ defmodule Membrane.RTCP.AppPacket do
         name: name,
         data: data
       }) do
-    {<<ssrc::32, name::bitstring-size(32), data::binary>>, @packet_type, subtype}
+    {<<ssrc::32, name::bitstring-size(32), data::binary>>, subtype}
   end
 end

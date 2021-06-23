@@ -14,6 +14,12 @@ defmodule Membrane.RTP.Packet do
   @enforce_keys [:header, :payload]
   defstruct @enforce_keys
 
+  def identify(<<_first_byte, _marker::1, payload_type::7, _rest::binary>>)
+      when payload_type in 64..95,
+      do: :rtcp
+
+  def identify(_packet), do: :rtp
+
   @spec serialize(t, align_to: pos_integer()) :: binary
   def serialize(%__MODULE__{} = packet, [align_to: align_to] \\ [align_to: 1]) do
     %__MODULE__{header: header, payload: payload} = packet

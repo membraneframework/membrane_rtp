@@ -129,6 +129,15 @@ defmodule Membrane.RTP.JitterBuffer do
   end
 
   @impl true
+  def handle_event(:input, %__MODULE__.StatsRequestEvent{}, _ctx, state) do
+    {stats, state} = get_updated_stats(state)
+    {{:ok, event: {:input, %__MODULE__.StatsEvent{stats: stats}}}, state}
+  end
+
+  @impl true
+  def handle_event(pad, event, ctx, state), do: super(pad, event, ctx, state)
+
+  @impl true
   def handle_other(:initial_latency_passed, _context, state) do
     state = %State{state | waiting?: false}
     send_buffers(state)
@@ -138,12 +147,6 @@ defmodule Membrane.RTP.JitterBuffer do
   def handle_other(:send_buffers, _context, state) do
     state = %State{state | max_latency_timer: nil}
     send_buffers(state)
-  end
-
-  @impl true
-  def handle_other(:send_stats, _ctx, state) do
-    {stats, state} = get_updated_stats(state)
-    {{:ok, notify: {:jitter_buffer_stats, stats}}, state}
   end
 
   defp send_buffers(%State{store: store} = state) do

@@ -15,14 +15,12 @@ defmodule Membrane.RTCP.ReceiverReportPacket do
 
   @behaviour Packet
 
-  @packet_type 201
-
   @impl true
   def encode(report) do
     blocks = report.reports |> Enum.map_join(&ReportPacketBlock.encode/1)
     body = <<report.ssrc::32>> <> blocks
     reports_count = report.reports |> length()
-    {body, @packet_type, reports_count}
+    {body, reports_count}
   end
 
   @impl true

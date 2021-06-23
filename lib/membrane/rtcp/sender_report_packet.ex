@@ -23,8 +23,6 @@ defmodule Membrane.RTCP.SenderReportPacket do
 
   @behaviour Packet
 
-  @packet_type 200
-
   @impl true
   def encode(report) do
     sender_info = encode_sender_info(report.sender_info)
@@ -34,7 +32,7 @@ defmodule Membrane.RTCP.SenderReportPacket do
 
     body = <<report.ssrc::32>> <> sender_info <> blocks
 
-    {body, @packet_type, reports_count}
+    {body, reports_count}
   end
 
   defp encode_sender_info(sender_info) do

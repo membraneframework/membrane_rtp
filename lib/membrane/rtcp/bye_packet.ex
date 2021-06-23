@@ -14,8 +14,6 @@ defmodule Membrane.RTCP.ByePacket do
 
   defstruct [:ssrcs, :reason]
 
-  @packet_type 203
-
   @behaviour Packet
 
   @impl true
@@ -47,7 +45,7 @@ defmodule Membrane.RTCP.ByePacket do
           <<length::8, other::binary>>
       end
 
-    {ssrcs <> reason, @packet_type, count}
+    {ssrcs <> reason, count}
   end
 
   defp make_reason(<<>>), do: nil

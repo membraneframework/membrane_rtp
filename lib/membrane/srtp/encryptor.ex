@@ -8,7 +8,7 @@ defmodule Membrane.SRTP.Encryptor do
 
   require Membrane.Logger
 
-  alias Membrane.Buffer
+  alias Membrane.{Buffer, RTP}
 
   def_input_pad :input, caps: :any, demand_unit: :buffers
   def_output_pad :output, caps: :any
@@ -84,14 +84,21 @@ defmodule Membrane.SRTP.Encryptor do
 
   @impl true
   def handle_process(:input, buffer, _ctx, state) do
-    case ExLibSRTP.protect(state.srtp, buffer.payload) do
+    %Buffer{payload: payload} = buffer
+    packet_type = RTP.Packet.identify(payload)
+
+    case packet_type do
+      :rtp -> ExLibSRTP.protect(state.srtp, payload)
+      :rtcp -> ExLibSRTP.protect_rtcp(state.srtp, payload)
+    end
+    |> case do
       {:ok, payload} ->
         {{:ok, buffer: {:output, %Buffer{buffer | payload: payload}}}, state}
 
       {:error, reason} ->
         Membrane.Logger.warn("""
-        Couldn't protect payload:
-        #{inspect(buffer.payload, limit: :infinity)}
+        Couldn't protect #{packet_type} payload:
+        #{inspect(payload, limit: :infinity)}
         Reason: #{inspect(reason)}. Ignoring packet.
         """)
 

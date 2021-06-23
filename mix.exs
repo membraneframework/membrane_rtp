@@ -74,23 +74,25 @@ defmodule Membrane.RTP.Plugin.MixProject do
 
   defp deps do
     [
-      {:membrane_core, "~> 0.6.1"},
+      # {:membrane_core, "~> 0.6.1"},
+      {:membrane_core, github: "membraneframework/membrane_core", override: true},
       {:membrane_rtp_format, "~> 0.3.1"},
       {:membrane_remote_stream_format, "~> 0.1.0"},
-      {:ex_libsrtp, "~> 0.1.0", optional: true},
-      {:bunch, "~> 1.0"},
-      {:heap, "~> 2.0.2"},
-
-      # Dev
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:excoveralls, ">= 0.8.0", only: :test},
       {:membrane_rtp_h264_plugin, "~> 0.4.0", only: :test},
       {:membrane_rtp_mpegaudio_plugin, "~> 0.5.0-alpha", only: :test},
       {:membrane_h264_ffmpeg_plugin, "~> 0.7.0", only: :test},
       {:membrane_element_pcap, github: "membraneframework/membrane-element-pcap", only: :test},
       {:membrane_element_udp, "~> 0.4.0", only: :test},
-      {:membrane_hackney_plugin, "~> 0.4.0", only: :test}
+      {:membrane_hackney_plugin, "~> 0.4.0", only: :test},
+      {:ex_libsrtp, "~> 0.1.0", optional: true},
+      {:bunch, "~> 1.0"},
+      {:heap, "~> 2.0.2"},
+      {:bimap, "~> 1.1.0"},
+
+      # Dev
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:excoveralls, ">= 0.8.0", only: :test}
     ]
   end
 end

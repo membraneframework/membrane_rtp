@@ -11,8 +11,9 @@ defmodule Membrane.RTP.Parser do
   use Membrane.Filter
 
   alias Membrane.Buffer
-  alias Membrane.{RTP, RemoteStream}
-  alias Membrane.RTP.{Header, Packet}
+  alias Membrane.{RTCP, RTCPEvent, RTP, RemoteStream}
+
+  require Membrane.Logger
 
   @metadata_fields [
     :timestamp,
@@ -30,6 +31,8 @@ defmodule Membrane.RTP.Parser do
 
   def_output_pad :output, caps: RTP
 
+  def_output_pad :rtcp_output, mode: :push, caps: :any, availability: :on_request
+
   @impl true
   def handle_init(_opts) do
     {:ok, %{}}
@@ -41,11 +44,27 @@ defmodule Membrane.RTP.Parser do
   end
 
   @impl true
-  def handle_process(:input, %Buffer{payload: buffer_payload} = buffer, _ctx, state) do
-    with {:ok, %Packet{} = packet} <- Packet.parse(buffer_payload) do
-      {{:ok, buffer: {:output, build_buffer(buffer, packet)}}, state}
-    else
-      {:error, reason} -> {{:error, reason}, state}
+  def handle_process(:input, buffer, _ctx, state) do
+    %Buffer{payload: payload} = buffer
+    packet_type = RTP.Packet.identify(payload)
+
+    case packet_type do
+      :rtp -> RTP.Packet.parse(payload)
+      :rtcp -> RTCP.Packet.parse(payload)
+    end
+    |> case do
+      {:ok, packet} ->
+        actions = process_packet(packet, buffer.metadata)
+        {{:ok, actions}, state}
+
+      {:error, reason} ->
+        Membrane.Logger.warn("""
+        Couldn't parse #{packet_type} packet:
+        #{inspect(payload, limit: :infinity)}
+        Reason: #{inspect(reason)}. Ignoring packet.
+        """)
+
+        {:ok, state}
     end
   end
 
@@ -54,18 +73,53 @@ defmodule Membrane.RTP.Parser do
     {{:ok, demand: {:input, size}}, state}
   end
 
-  @spec build_buffer(Buffer.t(), Packet.t()) :: Buffer.t()
-  defp build_buffer(
-         %Buffer{metadata: metadata} = original_buffer,
-         %Packet{payload: payload} = packet
-       ) do
-    updated_metadata = build_metadata(packet, metadata)
-    %Buffer{original_buffer | payload: payload, metadata: updated_metadata}
+  @impl true
+  def handle_event(:output, %RTCPEvent{} = event, ctx, state) do
+    ctx.pads
+    |> Map.keys()
+    |> Enum.find(fn
+      Pad.ref(:rtcp_output, _id) -> true
+      _pad -> false
+    end)
+    |> case do
+      nil ->
+        {:ok, state}
+
+      pad ->
+        buffer = %Buffer{payload: RTCP.Packet.serialize(event.rtcp)}
+        {{:ok, buffer: {pad, buffer}}, state}
+    end
   end
 
-  @spec build_metadata(Packet.t(), map()) :: map()
-  defp build_metadata(%Packet{header: %Header{} = header}, metadata) do
-    extracted = Map.take(header, @metadata_fields)
-    Map.put(metadata, :rtp, extracted)
+  @impl true
+  def handle_event(pad, event, ctx, state), do: super(pad, event, ctx, state)
+
+  defp process_packet(%RTP.Packet{} = rtp, metadata) do
+    extracted = Map.take(rtp.header, @metadata_fields)
+    metadata = Map.put(metadata, :rtp, extracted)
+    [buffer: {:output, %Buffer{payload: rtp.payload, metadata: metadata}}]
+  end
+
+  defp process_packet(rtcp, metadata) do
+    Enum.flat_map(rtcp, &process_rtcp(&1, metadata)) ++ [redemand: :output]
+  end
+
+  defp process_rtcp(%RTCP.FeedbackPacket{payload: %RTCP.FeedbackPacket.PLI{}}, _metadata) do
+    Membrane.Logger.warn("Received packet loss indicator RTCP packet")
+    []
+  end
+
+  defp process_rtcp(%RTCP.SenderReportPacket{ssrc: ssrc} = packet, metadata) do
+    event = %RTCPEvent{
+      rtcp: %{packet | reports: []},
+      ssrcs: [ssrc],
+      arrival_timestamp: Map.get(metadata, :arrival_ts, Membrane.Time.vm_time())
+    }
+
+    [event: {:output, event}]
+  end
+
+  defp process_rtcp(_unknown_rtcp_packet, _metadata) do
+    []
   end
 end

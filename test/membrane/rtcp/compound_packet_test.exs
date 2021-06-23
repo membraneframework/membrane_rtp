@@ -1,4 +1,4 @@
-defmodule Membrane.RTCP.CompoundPacketTest do
+defmodule Membrane.RTCP.PacketTest do
   use ExUnit.Case, async: true
 
   alias Membrane.RTCP
@@ -8,7 +8,7 @@ defmodule Membrane.RTCP.CompoundPacketTest do
 
   test "compound packets parsing" do
     packet = Fixtures.sample_packet_binary()
-    assert {:ok, %RTCP.CompoundPacket{packets: packets}} = RTCP.CompoundPacket.parse(packet)
+    assert {:ok, %RTCP.Packet{packets: packets}} = RTCP.Packet.parse(packet)
 
     assert %RTCP.SenderReportPacket{reports: [], sender_info: %{}, ssrc: @sample_ssrc} =
              hd(packets)
@@ -18,8 +18,8 @@ defmodule Membrane.RTCP.CompoundPacketTest do
 
   test "reconstructed packets are (almost) equal to original packets" do
     packet = Fixtures.sample_packet_binary()
-    assert {:ok, packets} = RTCP.CompoundPacket.parse(packet)
-    regenerated_packet = RTCP.CompoundPacket.serialize(packets)
+    assert {:ok, packets} = RTCP.Packet.parse(packet)
+    regenerated_packet = RTCP.Packet.serialize(packets)
 
     <<head::binary-size(12), ref_ntp_lsw::32, tail::binary>> = packet
 

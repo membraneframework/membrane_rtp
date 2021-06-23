@@ -26,7 +26,7 @@ defmodule Membrane.RTCP.ParsingPipelineTest do
     Fixtures.packet_list_contents()
     |> Enum.each(fn contents ->
       assert_pipeline_notified(pipeline, :parser, {:received_rtcp, report, _timestamp})
-      assert %RTCP.CompoundPacket{packets: packets} = report
+      assert %RTCP.Packet{packets: packets} = report
       assert [%RTCP.SenderReportPacket{} = sr, %RTCP.SdesPacket{} = sdes] = packets
 
       assert sr.ssrc == contents.ssrc

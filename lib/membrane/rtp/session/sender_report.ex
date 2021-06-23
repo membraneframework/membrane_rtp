@@ -18,7 +18,7 @@ defmodule Membrane.RTP.Session.SenderReport do
               stats: %{}
   end
 
-  @type maybe_report_t :: {:report, RTCP.CompoundPacket.t()} | :no_report
+  @type maybe_report_t :: {:report, RTCP.Packet.t()} | :no_report
 
   @spec init_report(ssrcs :: MapSet.t(RTP.ssrc_t()), report_data :: Data.t()) ::
           {MapSet.t(RTP.ssrc_t()), Data.t()}
@@ -45,7 +45,7 @@ defmodule Membrane.RTP.Session.SenderReport do
         "Not received sender stats from ssrcs: #{Enum.join(report_data.senders_ssrcs, ", ")}"
       )
 
-      with %RTCP.CompoundPacket{packets: []} <- generate_report(report_data.stats) do
+      with [] <- generate_report(report_data.stats) do
         {:no_report, report_data}
       else
         sender_reports ->
@@ -62,7 +62,7 @@ defmodule Membrane.RTP.Session.SenderReport do
     data = %{data | stats: Map.put(data.stats, sender_ssrc, stats), senders_ssrcs: senders_ssrcs}
 
     if Enum.empty?(senders_ssrcs) do
-      with %RTCP.CompoundPacket{packets: []} <- generate_report(data.stats) do
+      with [] <- generate_report(data.stats) do
         {:no_report, data}
       else
         sender_reports -> {{:report, sender_reports}, data}
@@ -73,14 +73,11 @@ defmodule Membrane.RTP.Session.SenderReport do
   end
 
   defp generate_report(stats) do
-    %RTCP.CompoundPacket{
-      packets:
-        stats
-        |> Enum.filter(fn {_k, v} -> v != :no_stats end)
-        |> Enum.flat_map(fn {sender_ssrc, sender_stats} ->
-          generate_sender_report(sender_ssrc, sender_stats)
-        end)
-    }
+    stats
+    |> Enum.filter(fn {_k, v} -> v != :no_stats end)
+    |> Enum.flat_map(fn {sender_ssrc, sender_stats} ->
+      generate_sender_report(sender_ssrc, sender_stats)
+    end)
   end
 
   defp generate_sender_report(sender_ssrc, sender_stats) do
