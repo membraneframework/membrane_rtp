@@ -12,8 +12,12 @@ defmodule Membrane.RTP.Serializer do
   @max_seq_num 65535
   @max_timestamp 0xFFFFFFFF
 
-  def_input_pad :input, caps: RTP, demand_unit: :buffers
-  def_output_pad :output, caps: {RemoteStream, type: :packetized, content_format: RTP}
+  # def_input_pad :input, caps: RTP, demand_unit: :buffers
+  def_input_pad :input, caps: RTP, demand_mode: :auto
+  # def_output_pad :output, caps: {RemoteStream, type: :packetized, content_format: RTP}
+  def_output_pad :output,
+    caps: {RemoteStream, type: :packetized, content_format: RTP},
+    demand_inputs: [:input]
 
   def_options ssrc: [spec: RTP.ssrc_t()],
               payload_type: [spec: RTP.payload_type_t()],
@@ -67,10 +71,10 @@ defmodule Membrane.RTP.Serializer do
     {{:ok, caps: {:output, caps}}, state}
   end
 
-  @impl true
-  def handle_demand(:output, size, :buffers, _ctx, state) do
-    {{:ok, demand: {:input, size}}, state}
-  end
+  # @impl true
+  # def handle_demand(:output, size, :buffers, _ctx, state) do
+  #   {{:ok, demand: {:input, size}}, state}
+  # end
 
   @impl true
   def handle_process(:input, %Buffer{payload: payload, metadata: metadata} = buffer, _ctx, state) do

@@ -10,8 +10,10 @@ defmodule Membrane.SRTP.Encryptor do
 
   alias Membrane.{Buffer, RTP}
 
-  def_input_pad :input, caps: :any, demand_unit: :buffers
-  def_output_pad :output, caps: :any
+  # def_input_pad :input, caps: :any, demand_unit: :buffers
+  def_input_pad :input, caps: :any, demand_mode: :auto
+  # def_output_pad :output, caps: :any
+  def_output_pad :output, caps: :any, demand_inputs: [:input]
 
   def_options policies: [
                 spec: [ExLibSRTP.Policy.t()],
@@ -26,7 +28,8 @@ defmodule Membrane.SRTP.Encryptor do
   def handle_init(%__MODULE__{policies: policies}) do
     state = %{
       policies: policies,
-      srtp: nil
+      srtp: nil,
+      buffer: []
     }
 
     {:ok, state}
@@ -45,7 +48,7 @@ defmodule Membrane.SRTP.Encryptor do
 
   @impl true
   def handle_prepared_to_stopped(_ctx, state) do
-    {:ok, %{state | srtp: nil, policies: []}}
+    {:ok, %{state | srtp: nil, policies: [], buffer: []}}
   end
 
   @impl true
@@ -63,7 +66,9 @@ defmodule Membrane.SRTP.Encryptor do
     }
 
     :ok = ExLibSRTP.add_stream(state.srtp, policy)
-    {{:ok, redemand: :output}, Map.put(state, :policies, [policy])}
+    # {{:ok, redemand: :output}, Map.put(state, :policies, [policy])}
+    {{:ok, buffer: {:output, Enum.reverse(state.buffer)}},
+     %{state | policies: [policy], buffer: []}}
   end
 
   @impl true
@@ -72,14 +77,20 @@ defmodule Membrane.SRTP.Encryptor do
     {:ok, state}
   end
 
-  @impl true
-  def handle_demand(:output, _size, :buffers, _ctx, %{policies: []} = state) do
-    {:ok, state}
-  end
+  # @impl true
+  # def handle_demand(:output, _size, :buffers, _ctx, %{policies: []} = state) do
+  #   {:ok, state}
+  # end
+
+  # @impl true
+  # def handle_demand(:output, size, :buffers, _ctx, state) do
+  #   {{:ok, demand: {:input, size}}, state}
+  # end
 
   @impl true
-  def handle_demand(:output, size, :buffers, _ctx, state) do
-    {{:ok, demand: {:input, size}}, state}
+  def handle_process(:input, buffer, _ctx, %{policies: []} = state) do
+    IO.inspect(:accumulating_buffer)
+    {:ok, Map.update!(state, :buffer, &[buffer | &1])}
   end
 
   @impl true

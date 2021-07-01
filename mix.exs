@@ -75,8 +75,9 @@ defmodule Membrane.RTP.Plugin.MixProject do
   defp deps do
     [
       # {:membrane_core, "~> 0.6.1"},
-      {:membrane_core,
-       github: "membraneframework/membrane_core", override: true},
+      # {:membrane_core,
+      #  github: "membraneframework/membrane_core", override: true},
+      {:membrane_core, path: "../membrane_core", override: true},
       {:membrane_rtp_format, "~> 0.3.1"},
       {:membrane_remote_stream_format, "~> 0.1.0"},
       {:membrane_rtp_h264_plugin, "~> 0.4.0", only: :test},

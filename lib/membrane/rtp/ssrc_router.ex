@@ -10,9 +10,10 @@ defmodule Membrane.RTP.SSRCRouter do
 
   alias Membrane.{RTP, RTCPEvent}
 
-  def_input_pad :input, demand_unit: :buffers, caps: RTP, availability: :on_request
+  # def_input_pad :input, demand_unit: :buffers, caps: RTP, availability: :on_request
+  def_input_pad :input, demand_mode: :auto, caps: RTP, availability: :on_request
 
-  def_output_pad :output, caps: RTP, availability: :on_request
+  def_output_pad :output, caps: RTP, availability: :on_request, demand_inputs: [:input]
 
   defmodule State do
     @moduledoc false
@@ -64,26 +65,26 @@ defmodule Membrane.RTP.SSRCRouter do
     {:ok, state}
   end
 
-  @impl true
-  def handle_prepared_to_playing(ctx, state) do
-    actions =
-      ctx.pads
-      |> Enum.filter(fn {_pad_ref, pad_data} -> pad_data.direction == :input end)
-      |> Enum.map(fn {pad_ref, _pad_data} -> {:demand, {pad_ref, 1}} end)
+  # @impl true
+  # def handle_prepared_to_playing(ctx, state) do
+  #   actions =
+  #     ctx.pads
+  #     |> Enum.filter(fn {_pad_ref, pad_data} -> pad_data.direction == :input end)
+  #     |> Enum.map(fn {pad_ref, _pad_data} -> {:demand, {pad_ref, 1}} end)
 
-    {{:ok, actions}, state}
-  end
+  #   {{:ok, actions}, state}
+  # end
 
   @impl true
   def handle_caps(Pad.ref(:input, _ref), _caps, _ctx, state) do
     {:ok, state}
   end
 
-  @impl true
-  def handle_demand(Pad.ref(:output, ssrc), _size, _unit, ctx, state) do
-    input_pad = state.pads[ssrc]
-    {{:ok, demand: {input_pad, &(&1 + ctx.incoming_demand)}}, state}
-  end
+  # @impl true
+  # def handle_demand(Pad.ref(:output, ssrc), _size, _unit, ctx, state) do
+  #   input_pad = state.pads[ssrc]
+  #   {{:ok, demand: {input_pad, &(&1 + ctx.incoming_demand)}}, state}
+  # end
 
   @impl true
   def handle_process(Pad.ref(:input, _id) = pad, buffer, _ctx, state) do
@@ -142,8 +143,9 @@ defmodule Membrane.RTP.SSRCRouter do
 
     if waiting_for_linking?(ssrc, state) do
       state = update_in(state, [:linking_buffers, ssrc], &[action | &1])
-      actions = if type == :buffer, do: [demand: {state.pads[ssrc], &(&1 + 1)}], else: []
-      {actions, state}
+      # actions = if type == :buffer, do: [demand: {state.pads[ssrc], &(&1 + 1)}], else: []
+      # {actions, state}
+      {[], state}
     else
       {[action], state}
     end

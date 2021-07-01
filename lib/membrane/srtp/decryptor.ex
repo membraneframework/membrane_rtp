@@ -11,8 +11,10 @@ defmodule Membrane.SRTP.Decryptor do
   alias Membrane.Buffer
   alias Membrane.{Buffer, RTP}
 
-  def_input_pad :input, caps: :any, demand_unit: :buffers
-  def_output_pad :output, caps: :any
+  # def_input_pad :input, caps: :any, demand_unit: :buffers
+  def_input_pad :input, caps: :any, demand_mode: :auto
+  # def_output_pad :output, caps: :any
+  def_output_pad :output, caps: :any, demand_inputs: [:input]
 
   def_options policies: [
                 spec: [ExLibSRTP.Policy.t()],
@@ -63,7 +65,8 @@ defmodule Membrane.SRTP.Decryptor do
     }
 
     :ok = ExLibSRTP.add_stream(state.srtp, policy)
-    {{:ok, redemand: :output}, Map.put(state, :policies, [policy])}
+    # {{:ok, redemand: :output}, Map.put(state, :policies, [policy])}
+    {:ok, Map.put(state, :policies, [policy])}
   end
 
   @impl true
@@ -72,15 +75,15 @@ defmodule Membrane.SRTP.Decryptor do
     {:ok, state}
   end
 
-  @impl true
-  def handle_demand(:output, _size, :buffers, _ctx, %{policies: []} = state) do
-    {:ok, state}
-  end
+  # @impl true
+  # def handle_demand(:output, _size, :buffers, _ctx, %{policies: []} = state) do
+  #   {:ok, state}
+  # end
 
-  @impl true
-  def handle_demand(:output, size, :buffers, _ctx, state) do
-    {{:ok, demand: {:input, size}}, state}
-  end
+  # @impl true
+  # def handle_demand(:output, size, :buffers, _ctx, state) do
+  #   {{:ok, demand: {:input, size}}, state}
+  # end
 
   @impl true
   def handle_process(:input, buffer, _ctx, state) do

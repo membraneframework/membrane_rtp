@@ -15,11 +15,14 @@ defmodule Membrane.RTP.VAD do
   def_input_pad :input,
     availability: :always,
     caps: :any,
-    demand_unit: :buffers
+    demand_mode: :auto
+
+  # demand_unit: :buffers,
 
   def_output_pad :output,
     availability: :always,
-    caps: :any
+    caps: :any,
+    demand_inputs: [:input]
 
   def_options time_window: [
                 spec: pos_integer(),
@@ -81,10 +84,10 @@ defmodule Membrane.RTP.VAD do
     {:ok, state}
   end
 
-  @impl true
-  def handle_demand(:output, size, :buffers, _ctx, state) do
-    {{:ok, demand: {:input, size}}, state}
-  end
+  # @impl true
+  # def handle_demand(:output, size, :buffers, _ctx, state) do
+  #   {{:ok, demand: {:input, size}}, state}
+  # end
 
   @impl true
   def handle_process(:input, %Membrane.Buffer{} = buffer, _ctx, state) do
